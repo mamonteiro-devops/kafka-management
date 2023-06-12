@@ -1,0 +1,31 @@
+confluentRolebinding:
+  enabled: false
+
+kafkaServiceAccount:
+  enabled: false
+
+notification:
+  enabled: true
+
+manageAclsJob:
+  enabled: true
+
+schemaRegistry:
+  enabled: true
+
+schemasDirectory: "specs/pricing/schemas"
+
+info:
+  title: example
+  version: '1.0.0'
+  description: |
+    example service is responsible to managed things
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+consumers: {}
+  # - name: test-user
+  #   type: group
+  # - name: test-user-2
+  #   type: group

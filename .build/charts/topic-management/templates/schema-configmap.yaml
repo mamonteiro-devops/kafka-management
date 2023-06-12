@@ -1,0 +1,15 @@
+{{if .Values.schemaRegistry.enabled}}
+{{- range $path, $d := $.Files.Glob (printf "%s/**.**" .Values.schemasDirectory) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+{{- $result := regexReplaceAll "\\.[^.]*$" $path "" }}
+{{- $splitString := $result | split "/" }}
+  name: schema-config-{{$splitString._3}}-value
+  namespace: confluent
+data:
+  schema: |
+  {{- $d | toString | nindent 4 }}
+---
+{{ end }}
+{{ end }}

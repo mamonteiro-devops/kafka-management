@@ -1,0 +1,106 @@
+asyncapi: '2.6.0'
+id: 'urn:kn:com:product:service:server'
+info:
+  title: product-service
+  version: '1.0.0'
+  description: |
+    product service is responsible to managed products
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  x-kn-maintainers:
+    - rui.eusebio
+    - canelo.alvarez
+    - gennady.golovkin
+
+defaultContentType: application/vnd.confluent.avro
+
+servers:
+  production:
+    url: kafka.mycompany.com
+    protocol: kafka
+    description: This is kafka broker.
+    security:
+      - saslScram: []
+    bindings:
+      kafka:
+        schemaRegistryUrl: 'https://my-schema-registry.com'
+        schemaRegistryVendor: 'confluent'
+        bindingVersion: '0.4.0'
+
+channels:
+  product.created:
+    subscribe:
+      operationId: productCreatedHandler
+      message:
+        name: product-created
+        summary: The event published after product created.
+        contentType: avro
+        schemaFormat: 'application/vnd.apache.avro+yaml;version=1.9.0'
+        payload:
+          $ref: './schemas/kn.product.created.v1.avsc'
+        headers:
+          $ref: '#/components/schemas/headers'
+    bindings:
+      kafka:
+        topic: 'kn.product.created.v1'
+        schemaIdPayloadEncoding: 'avro'
+        partitions: 3
+        replicas: 2
+        consumers:
+          - consumer1
+          - consumer2
+        topicConfiguration:
+          cleanup.policy: ["delete"]
+          retention.ms: 604800000
+          retention.bytes: 1000000000
+          delete.retention.ms: 86400000
+          max.message.bytes: 1048588
+        bindingVersion: '0.4.0'
+
+  product.create.command:
+    publish:
+      operationId: ProductCreateCommandHandler
+      message:
+        name: product-create-command
+        summary: create product for a product-api
+        contentType: avro
+        schemaFormat: 'application/vnd.apache.avro+yaml;version=1.9.0'
+        payload:
+          $ref: './schemas/kn.product.create.command.v1.avsc'
+        headers:
+          $ref: '#/components/schemas/headers'
+    bindings:
+      kafka:
+        topic: 'kn.product.create.command.v1'
+        schemaIdPayloadEncoding: 'avro'
+        partitions: 3
+        replicas: 2
+        producers:
+          type: string
+          enum:
+            - producer1
+            - producer2       
+        topicConfiguration:
+          cleanup.policy: ["delete"]
+          retention.ms: 604800000
+          retention.bytes: 1000000000
+          delete.retention.ms: 86400000
+          max.message.bytes: 1048588
+        bindingVersion: '0.4.0'  
+
+components:
+  schemas:
+    headers:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: datetime 
+  securitySchemes:
+    saslScram:
+      type: scramSha256
+      description: Provide your username and password for SASL/SCRAM authentication

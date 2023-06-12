@@ -1,0 +1,13 @@
+{{ range $channel := .Values.channels }}
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: {{$channel.bindings.kafka.topic}}
+  namespace: confluent
+spec:
+  partitionCount: {{$channel.bindings.kafka.partitions}}
+  replicas: {{$channel.bindings.kafka.replicas}}
+  configs:
+    cleanup.policy: "delete"
+---
+{{ end }}

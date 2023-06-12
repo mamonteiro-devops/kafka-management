@@ -1,0 +1,17 @@
+{{if .Values.schemaRegistry.enabled}}
+{{$sha:= include (print $.Template.BasePath "/schema-configmap.yaml") . | sha256sum }}
+{{ range $channel := .Values.channels }}
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: {{$channel.bindings.kafka.topic}}-value
+  namespace: confluent
+  annotations:
+    checksum/config: {{ $sha }}  
+spec:
+  data:
+    configRef: schema-config-{{$channel.bindings.kafka.topic}}-value
+    format: {{$channel.bindings.kafka.schemaIdPayloadEncoding}}
+---
+{{ end }}
+{{ end }}
